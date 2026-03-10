@@ -107,6 +107,10 @@ public class TextBuffer {
         fillLine(' ');
     }
 
+    public void insertEmptyLine() {
+        scroll();
+    }
+
     public String getScreenLine(int lineNumber) {
         if (lineNumber >= height)
             throw new IllegalArgumentException("Line number must be less than screen height");
