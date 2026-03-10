@@ -18,13 +18,13 @@ public class TextBuffer {
     public TextBuffer(int width, int height, int maxScrollback) {
 
         if (width <= 0)
-            throw new IllegalArgumentException("Width must be > 0");
+            throw new IllegalArgumentException("Width must be greater than 0");
 
         if (height <= 0)
-            throw new IllegalArgumentException("Height must be > 0");
+            throw new IllegalArgumentException("Height must be greater than 0");
 
         if (maxScrollback < 0)
-            throw new IllegalArgumentException("Scrollback must be >= 0");
+            throw new IllegalArgumentException("Scrollback cannot be negative");
 
         this.width = width;
         this.height = height;
@@ -43,7 +43,7 @@ public class TextBuffer {
 
     public String getScreenLine(int lineNumber) {
         if (lineNumber >= height)
-            throw new IllegalArgumentException("Line number cannot be more than screen height");
+            throw new IllegalArgumentException("Line number must be less than screen height");
 
         return getText(screen.get(lineNumber));
     }
@@ -53,8 +53,11 @@ public class TextBuffer {
             lineNumber += scrollback.size();
         }
 
-        if (lineNumber >= maxScrollback || lineNumber >= scrollback.size())
-            return "";
+        if (lineNumber >= maxScrollback)
+            throw new IllegalArgumentException("Line number must be less than maximum scrollback size");
+
+        if (lineNumber >= scrollback.size())
+            throw new IllegalArgumentException("Scrollback is currently not that big");
 
         return getText(scrollback.get(lineNumber));
     }
