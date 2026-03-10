@@ -320,4 +320,95 @@ public class TextBufferTest {
         assertEquals(9, cursorPosition.getColumn());
     }
 
+    // --- WRITE TEXT ---
+
+    @Test
+    void writeTextShouldFitInOneLine() {
+
+        TextBuffer buffer = new TextBuffer(5,5,100);
+
+        buffer.writeText("ABC");
+
+        assertTrue(buffer.getScreenLine(0).startsWith("ABC"));
+    }
+
+    @Test
+    void writeTextShouldMoveCursorCorrectly() {
+        TextBuffer buffer = new TextBuffer(10, 3, 10);
+
+        buffer.writeText("ABC");
+
+        assertEquals(0, buffer.getCursorPosition().getRow());
+        assertEquals(3, buffer.getCursorPosition().getColumn());
+    }
+
+    @Test
+    void writeTextExactlyFitsLine() {
+        TextBuffer buffer = new TextBuffer(3, 2, 5);
+
+        buffer.writeText("ABC");
+
+        Position cursorPosition = buffer.getCursorPosition();
+
+        assertEquals("ABC", buffer.getScreenLine(0));
+        assertEquals(0, cursorPosition.getRow());
+        assertEquals(3, cursorPosition.getColumn());
+    }
+
+    @Test
+    void writeTextShouldWrapWhenExceedingScreenWidth() {
+
+        TextBuffer buffer = new TextBuffer(3,5,100);
+
+        buffer.writeText("ABCD");
+
+        assertEquals("ABC", buffer.getScreenLine(0));
+        assertTrue(buffer.getScreenLine(1).startsWith("D"));
+    }
+
+    @Test
+    void writeTextMultipleLinesWithWrap() {
+        TextBuffer buffer = new TextBuffer(4, 3, 5);
+
+        buffer.writeText("AAAABBBBCCC");
+
+        assertEquals("AAAA", buffer.getScreenLine(0));
+        assertEquals("BBBB", buffer.getScreenLine(1));
+        assertTrue(buffer.getScreenLine(2).startsWith("CCC"));
+    }
+
+    @Test
+    void writeTextShouldScrollWhenExceedingScreenHeight() {
+        TextBuffer buffer = new TextBuffer(3, 3, 100);
+
+        buffer.writeText("AAABBBCCCD");
+
+        assertEquals("AAA", buffer.getScrollbackLine(-1));
+        assertEquals("BBB", buffer.getScreenLine(0));
+        assertEquals("CCC", buffer.getScreenLine(1));
+        assertTrue(buffer.getScreenLine(2).startsWith("D"));
+    }
+
+    @Test
+    void writeTextEmptyStringShouldNotChangeScreen() {
+        TextBuffer buffer = new TextBuffer(5, 2, 5);
+
+        buffer.writeText("");
+        assertEquals(0, buffer.getCursorPosition().getRow());
+        assertEquals(0, buffer.getCursorPosition().getColumn());
+        assertTrue(buffer.getScreenLine(0).isBlank());
+    }
+
+
+    @Test
+    void writeTextCursorAtScreenEndDoesNotOverflow() {
+        TextBuffer buffer = new TextBuffer(4, 2, 2);
+
+        buffer.setCursorPosition(new Position(1, 3));
+        buffer.writeText("AB");
+
+        Position cursorPosition = buffer.getCursorPosition();
+        assertTrue(cursorPosition.getRow() <= 1);
+        assertTrue(cursorPosition.getColumn() <= 3);
+    }
 }
