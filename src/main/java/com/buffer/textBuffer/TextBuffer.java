@@ -62,6 +62,33 @@ public class TextBuffer {
         return getText(scrollback.get(lineNumber));
     }
 
+    public Position getCursorPosition() {
+        return new Position(cursor.getRow(), cursor.getColumn());
+    }
+
+    public void setCursorPosition(Position cursorPosition) {
+        int row = Math.min(height - 1, Math.max(0, cursorPosition.getRow()));
+        int column = Math.min(width - 1, Math.max(0, cursorPosition.getColumn()));
+
+        cursor.setPosition(row, column);
+    }
+
+    public void moveCursorUp(int n) {
+        cursor.setPosition(Math.max(0, cursor.getRow() - n), cursor.getColumn());
+    }
+
+    public void moveCursorDown(int n) {
+        cursor.setPosition(Math.min(height - 1, cursor.getRow() + n), cursor.getColumn());
+    }
+
+    public void moveCursorLeft(int n) {
+        cursor.setPosition(cursor.getRow(), Math.max(0, cursor.getColumn() - n));
+    }
+
+    public void moveCursorRight(int n) {
+        cursor.setPosition(cursor.getRow(), Math.min(width - 1, cursor.getColumn() + n));
+    }
+
     private List<Cell> createEmptyLine() {
         List<Cell> line = new ArrayList<>();
         for (int i = 0; i < width; i++)
