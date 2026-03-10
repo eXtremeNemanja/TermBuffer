@@ -147,6 +147,16 @@ public class TextBuffer {
             return getScreenCharacter(new Position(position.getRow() - scrollback.size(), position.getColumn()));
     }
 
+    public CellAttributes getAttributesAt(Position position) {
+        if (position.getRow() >= scrollback.size() + height)
+            throw new IndexOutOfBoundsException("There isn't that many rows or columns");
+
+        if (position.getRow() < scrollback.size())
+            return getScrollbackCharacterAttributes(position);
+        else
+            return getScreenCharacterAttributes(new Position(position.getRow() - scrollback.size(), position.getColumn()));
+    }
+
     public Position getCursorPosition() {
         return new Position(cursor.getRow(), cursor.getColumn());
     }
@@ -192,39 +202,52 @@ public class TextBuffer {
 
     private String getScreenLine(int lineNumber) {
         if (lineNumber >= height)
-            throw new IllegalArgumentException("Line number must be less than screen height");
+            throw new IndexOutOfBoundsException("Line number must be less than screen height");
 
         return getText(screen.get(lineNumber));
     }
 
     private String getScrollbackLine(int lineNumber) {
         if (scrollback.isEmpty())
-            throw new IllegalArgumentException("Scrollback is currently empty");
+            throw new IndexOutOfBoundsException("Scrollback is currently empty");
 
         if (lineNumber < 0) {
             lineNumber += scrollback.size();
         }
 
         if (lineNumber >= maxScrollback)
-            throw new IllegalArgumentException("Line number must be less than maximum scrollback size");
+            throw new IndexOutOfBoundsException("Line number must be less than maximum scrollback size");
 
         if (lineNumber >= scrollback.size())
-            throw new IllegalArgumentException("Scrollback is currently not that big");
+            throw new IndexOutOfBoundsException("Scrollback is currently not that big");
 
         return getText(scrollback.get(lineNumber));
     }
 
     private char getScreenCharacter(Position position) {
         if (position.getRow() >= height || position.getColumn() >= width)
-            throw new IllegalArgumentException("Coordinates are not valid");
+            throw new IndexOutOfBoundsException("Coordinates are not valid");
         return screen.get(position.getRow()).get(position.getColumn()).getCharacter();
     }
 
     private char getScrollbackCharacter(Position position) {
         if (position.getRow() >= maxScrollback || position.getRow() >= scrollback.size() || position.getColumn() >= width)
-            throw new IllegalArgumentException("Coordinates are not valid");
+            throw new IndexOutOfBoundsException("Coordinates are not valid");
 
         return scrollback.get(position.getRow()).get(position.getColumn()).getCharacter();
+    }
+
+    private CellAttributes getScreenCharacterAttributes(Position position) {
+        if (position.getRow() >= height || position.getColumn() >= width)
+            throw new IndexOutOfBoundsException("Coordinates are not valid");
+        return screen.get(position.getRow()).get(position.getColumn()).getAttributes();
+    }
+
+    private CellAttributes getScrollbackCharacterAttributes(Position position) {
+        if (position.getRow() >= maxScrollback || position.getRow() >= scrollback.size() || position.getColumn() >= width)
+            throw new IndexOutOfBoundsException("Coordinates are not valid");
+
+        return scrollback.get(position.getRow()).get(position.getColumn()).getAttributes();
     }
 
     private void moveCursorDown() {
