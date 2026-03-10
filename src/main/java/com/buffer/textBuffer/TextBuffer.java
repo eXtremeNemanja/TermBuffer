@@ -5,9 +5,9 @@ import java.util.List;
 
 public class TextBuffer {
 
-    private int width;
-    private int height;
-    private int maxScrollback;
+    private final int width;
+    private final int height;
+    private final int maxScrollback;
 
     private final List<List<Cell>> screen;
     private final List<List<Cell>> scrollback;
@@ -53,6 +53,48 @@ public class TextBuffer {
             line.set(cursor.getColumn(), new Cell(c, currentAttributes));
 
             cursor.setPosition(cursor.getRow(), cursor.getColumn() + 1);
+        }
+    }
+
+    public void insertText(String text) {
+        List<Cell> line = screen.get(cursor.getRow());
+
+        int cursorColumn = cursor.getColumn();
+
+        StringBuilder overflow;
+        if (cursorColumn + text.length() > width) {
+            overflow = new StringBuilder(text.substring(width - cursorColumn));
+
+            int overflowPos = width - 1;
+            for (int i = overflow.length(); i < text.length(); i++) {
+                overflow.append(line.get(overflowPos).getCharacter());
+                overflowPos--;
+            }
+        } else {
+            List<Cell> overflowCells = line.subList(width - text.length(), width);
+            overflow = new StringBuilder(getText(overflowCells).strip());
+        }
+
+        for (int i = width - 1; i >= cursorColumn && i - text.length() >= 0; i--) {
+            line.set(i, line.get(i - text.length()));
+        }
+
+        for (char c : text.toCharArray()) {
+
+            if (cursorColumn >= width) break;
+
+            line.set(cursorColumn, new Cell(c, currentAttributes));
+            cursorColumn++;
+        }
+
+        cursor.setPosition(cursor.getRow(), cursorColumn);
+
+
+        if (!overflow.isEmpty()) {
+            cursor.setPosition(cursor.getRow(), 0);
+            moveCursorDown();
+
+            insertText(overflow.toString().strip());
         }
     }
 
