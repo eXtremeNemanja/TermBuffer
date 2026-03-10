@@ -678,4 +678,84 @@ public class TextBufferTest {
         assertEquals(1, cursorPosition.getRow());
         assertEquals(2, cursorPosition.getColumn());
     }
+
+    // --- Clear screen ---
+
+    @Test
+    void clearScreen_removesAllContentFromScreen() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.writeText("AAA");
+
+        buffer.clearScreen();
+
+        assertEquals("     ", buffer.getScreenLine(0));
+        assertEquals("     ", buffer.getScreenLine(1));
+        assertEquals("     ", buffer.getScreenLine(2));
+    }
+
+    @Test
+    void clearScreenShouldNotClearScrollback() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.writeText("FGHIJ");
+        buffer.writeText("KLMNO");
+
+        buffer.clearScreen();
+
+        assertEquals("ABCDE", buffer.getScrollbackLine(-1));
+    }
+
+    @Test
+    void clearScreenResetsCursorPosition() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.setCursorPosition(new Position(2, 3));
+
+        buffer.clearScreen();
+
+        Position cursor = buffer.getCursorPosition();
+        assertEquals(0, cursor.getRow());
+        assertEquals(0, cursor.getColumn());
+    }
+
+    // --- Clear screen and scrollback ---
+
+    @Test
+    void clearScreenAndScrollbackShouldRemoveScreenContent() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.writeText("AAAAA");
+
+        buffer.clearScreenAndScrollback();
+
+        assertTrue(buffer.getScreenLine(0).isBlank());
+        assertTrue(buffer.getScreenLine(1).isBlank());
+        assertTrue(buffer.getScreenLine(2).isBlank());
+    }
+
+    @Test
+    void clearScreenAndScrollbackShouldRemoveScrollbackHistory() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.writeText("FGHIJ");
+        buffer.writeText("KLMNO");
+
+        assertEquals("ABCDE", buffer.getScrollbackLine(-1));
+
+        buffer.clearScreenAndScrollback();
+
+        assertThrows(IllegalArgumentException.class, () -> buffer.getScrollbackLine(-1));
+    }
+
+    @Test
+    void clearScreenAndScrollbackShouldResetCursorPosition() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.setCursorPosition(new Position(2, 4));
+
+        buffer.clearScreenAndScrollback();
+
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(0, cursorPosition.getRow());
+        assertEquals(0, cursorPosition.getColumn());
+    }
 }
