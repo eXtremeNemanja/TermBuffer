@@ -127,28 +127,14 @@ public class TextBuffer {
         clearScreen();
     }
 
-    public String getScreenLine(int lineNumber) {
-        if (lineNumber >= height)
-            throw new IllegalArgumentException("Line number must be less than screen height");
+    public String getLine(int lineNumber) {
+        if (lineNumber >= scrollback.size() + height)
+            throw new IllegalArgumentException("There isn't that many lines");
 
-        return getText(screen.get(lineNumber));
-    }
-
-    public String getScrollbackLine(int lineNumber) {
-        if (scrollback.isEmpty())
-            throw new IllegalArgumentException("Scrollback is currently empty");
-
-        if (lineNumber < 0) {
-            lineNumber += scrollback.size();
-        }
-
-        if (lineNumber >= maxScrollback)
-            throw new IllegalArgumentException("Line number must be less than maximum scrollback size");
-
-        if (lineNumber >= scrollback.size())
-            throw new IllegalArgumentException("Scrollback is currently not that big");
-
-        return getText(scrollback.get(lineNumber));
+        if (lineNumber < scrollback.size())
+            return getScrollbackLine(lineNumber);
+        else
+            return getScreenLine(lineNumber - scrollback.size());
     }
 
     public Position getCursorPosition() {
@@ -194,6 +180,29 @@ public class TextBuffer {
         return text.toString();
     }
 
+    private String getScreenLine(int lineNumber) {
+        if (lineNumber >= height)
+            throw new IllegalArgumentException("Line number must be less than screen height");
+
+        return getText(screen.get(lineNumber));
+    }
+
+    private String getScrollbackLine(int lineNumber) {
+        if (scrollback.isEmpty())
+            throw new IllegalArgumentException("Scrollback is currently empty");
+
+        if (lineNumber < 0) {
+            lineNumber += scrollback.size();
+        }
+
+        if (lineNumber >= maxScrollback)
+            throw new IllegalArgumentException("Line number must be less than maximum scrollback size");
+
+        if (lineNumber >= scrollback.size())
+            throw new IllegalArgumentException("Scrollback is currently not that big");
+
+        return getText(scrollback.get(lineNumber));
+    }
 
     private void moveCursorDown() {
 

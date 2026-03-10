@@ -14,10 +14,10 @@ public class TextBufferTest {
         TextBuffer buffer = new TextBuffer(10, 5, 100);
 
         for (int i = 0; i < 5; i++) {
-            assertNotNull(buffer.getScreenLine(i));
+            assertNotNull(buffer.getLine(i));
         }
 
-        assertThrows(IllegalArgumentException.class, () -> buffer.getScreenLine(5));
+        assertThrows(IllegalArgumentException.class, () -> buffer.getLine(5));
     }
 
     @Test
@@ -25,7 +25,7 @@ public class TextBufferTest {
         TextBuffer buffer = new TextBuffer(8, 3, 100);
 
         for (int i = 0; i < 3; i++) {
-            String line = buffer.getScreenLine(i);
+            String line = buffer.getLine(i);
             assertEquals(8, line.length());
         }
     }
@@ -35,8 +35,7 @@ public class TextBufferTest {
         TextBuffer buffer = new TextBuffer(6, 2, 100);
 
         for (int i = 0; i < 2; i++) {
-            String line = buffer.getScreenLine(i);
-            assertEquals("      ", line);
+            assertTrue(buffer.getLine(i).isBlank());
         }
     }
 
@@ -45,7 +44,7 @@ public class TextBufferTest {
         TextBuffer buffer = new TextBuffer(1, 3, 10);
 
         for (int i = 0; i < 3; i++) {
-            assertEquals(" ", buffer.getScreenLine(i));
+            assertEquals(1, buffer.getLine(i).length());
         }
     }
 
@@ -53,7 +52,7 @@ public class TextBufferTest {
     void shouldHandleHeightOne() {
         TextBuffer buffer = new TextBuffer(5, 1, 10);
 
-        assertEquals(5, buffer.getScreenLine(0).length());
+        assertEquals(5, buffer.getLine(0).length());
     }
 
     @Test
@@ -329,7 +328,7 @@ public class TextBufferTest {
 
         buffer.writeText("ABC");
 
-        assertTrue(buffer.getScreenLine(0).startsWith("ABC"));
+        assertTrue(buffer.getLine(0).startsWith("ABC"));
     }
 
     @Test
@@ -351,7 +350,7 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0,0));
         buffer.writeText("DEF");
 
-        assertEquals("DEF", buffer.getScreenLine(0));
+        assertEquals("DEF", buffer.getLine(0));
     }
 
     @Test
@@ -362,7 +361,7 @@ public class TextBufferTest {
 
         Position cursorPosition = buffer.getCursorPosition();
 
-        assertEquals("ABC", buffer.getScreenLine(0));
+        assertEquals("ABC", buffer.getLine(0));
         assertEquals(0, cursorPosition.getRow());
         assertEquals(3, cursorPosition.getColumn());
     }
@@ -374,8 +373,8 @@ public class TextBufferTest {
 
         buffer.writeText("ABCD");
 
-        assertEquals("ABC", buffer.getScreenLine(0));
-        assertTrue(buffer.getScreenLine(1).startsWith("D"));
+        assertEquals("ABC", buffer.getLine(0));
+        assertTrue(buffer.getLine(1).startsWith("D"));
     }
 
     @Test
@@ -384,9 +383,9 @@ public class TextBufferTest {
 
         buffer.writeText("AAAABBBBCCC");
 
-        assertEquals("AAAA", buffer.getScreenLine(0));
-        assertEquals("BBBB", buffer.getScreenLine(1));
-        assertTrue(buffer.getScreenLine(2).startsWith("CCC"));
+        assertEquals("AAAA", buffer.getLine(0));
+        assertEquals("BBBB", buffer.getLine(1));
+        assertTrue(buffer.getLine(2).startsWith("CCC"));
     }
 
     @Test
@@ -395,10 +394,10 @@ public class TextBufferTest {
 
         buffer.writeText("AAABBBCCCD");
 
-        assertEquals("AAA", buffer.getScrollbackLine(-1));
-        assertEquals("BBB", buffer.getScreenLine(0));
-        assertEquals("CCC", buffer.getScreenLine(1));
-        assertTrue(buffer.getScreenLine(2).startsWith("D"));
+        assertEquals("AAA", buffer.getLine(0));
+        assertEquals("BBB", buffer.getLine(1));
+        assertEquals("CCC", buffer.getLine(2));
+        assertTrue(buffer.getLine(3).startsWith("D"));
     }
 
     @Test
@@ -408,7 +407,7 @@ public class TextBufferTest {
         buffer.writeText("");
         assertEquals(0, buffer.getCursorPosition().getRow());
         assertEquals(0, buffer.getCursorPosition().getColumn());
-        assertTrue(buffer.getScreenLine(0).isBlank());
+        assertTrue(buffer.getLine(0).isBlank());
     }
 
 
@@ -432,7 +431,7 @@ public class TextBufferTest {
 
         buffer.insertText("AB");
 
-        assertTrue(buffer.getScreenLine(0).startsWith("AB"));
+        assertTrue(buffer.getLine(0).startsWith("AB"));
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(2, cursorPosition.getColumn());
         assertEquals(0, cursorPosition.getRow());
@@ -447,8 +446,8 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 2));
         buffer.insertText("XY");
 
-        assertEquals("ABXYC", buffer.getScreenLine(0));
-        assertTrue(buffer.getScreenLine(1).startsWith("DE"));
+        assertEquals("ABXYC", buffer.getLine(0));
+        assertTrue(buffer.getLine(1).startsWith("DE"));
 
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(2, cursorPosition.getColumn());
@@ -463,7 +462,7 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 3));
         buffer.insertText("DE");
 
-        assertEquals("ABCDE", buffer.getScreenLine(0));
+        assertEquals("ABCDE", buffer.getLine(0));
 
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(5, cursorPosition.getColumn());
@@ -478,8 +477,8 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 1));
         buffer.insertText("XYZ");
 
-        assertEquals("AXYZB", buffer.getScreenLine(0));
-        assertTrue(buffer.getScreenLine(1).startsWith("CDE"));
+        assertEquals("AXYZB", buffer.getLine(0));
+        assertTrue(buffer.getLine(1).startsWith("CDE"));
 
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(3, cursorPosition.getColumn());
@@ -494,8 +493,8 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 0));
         buffer.insertText("XY");
 
-        assertEquals("XYABC", buffer.getScreenLine(0));
-        assertTrue(buffer.getScreenLine(1).startsWith("DE"));
+        assertEquals("XYABC", buffer.getLine(0));
+        assertTrue(buffer.getLine(1).startsWith("DE"));
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(2, cursorPosition.getColumn());
     }
@@ -508,8 +507,8 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 5));
         buffer.insertText("XY");
 
-        assertEquals("ABCDX", buffer.getScreenLine(0));
-        assertTrue(buffer.getScreenLine(1).startsWith("YE"));
+        assertEquals("ABCDX", buffer.getLine(0));
+        assertTrue(buffer.getLine(1).startsWith("YE"));
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(2, cursorPosition.getColumn());
         assertEquals(1, cursorPosition.getRow());
@@ -523,9 +522,9 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 5));
         buffer.insertText("UVWXYZ");
 
-        assertEquals("ABCDU", buffer.getScreenLine(0));
-        assertEquals("VWXYZ", buffer.getScreenLine(1));
-        assertTrue(buffer.getScreenLine(2).startsWith("E"));
+        assertEquals("ABCDU", buffer.getLine(0));
+        assertEquals("VWXYZ", buffer.getLine(1));
+        assertTrue(buffer.getLine(2).startsWith("E"));
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(1, cursorPosition.getColumn());
         assertEquals(2, cursorPosition.getRow());
@@ -541,7 +540,7 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 2));
         buffer.insertText("Z");
 
-        assertEquals("AXZYBC", buffer.getScreenLine(0));
+        assertEquals("AXZYBC", buffer.getLine(0));
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(3, cursorPosition.getColumn());
     }
@@ -554,7 +553,7 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(0, 1));
         buffer.insertText("");
 
-        assertTrue(buffer.getScreenLine(0).startsWith("ABC"));
+        assertTrue(buffer.getLine(0).startsWith("ABC"));
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(1, cursorPosition.getColumn());
     }
@@ -567,7 +566,7 @@ public class TextBufferTest {
 
         buffer.fillLine('X');
 
-        assertEquals("XXXXX", buffer.getScreenLine(0));
+        assertEquals("XXXXX", buffer.getLine(0));
     }
 
     @Test
@@ -589,7 +588,7 @@ public class TextBufferTest {
 
         buffer.fillLine('B');
 
-        assertEquals("BBBBB", buffer.getScreenLine(0));
+        assertEquals("BBBBB", buffer.getLine(0));
     }
 
     @Test
@@ -600,8 +599,8 @@ public class TextBufferTest {
         buffer.setCursorPosition(new Position(1,0));
         buffer.fillLine('B');
 
-        assertEquals("AAAAA", buffer.getScreenLine(0));
-        assertEquals("BBBBB", buffer.getScreenLine(1));
+        assertEquals("AAAAA", buffer.getLine(0));
+        assertEquals("BBBBB", buffer.getLine(1));
     }
 
     @Test
@@ -611,7 +610,7 @@ public class TextBufferTest {
 
         buffer.fillLine(' ');
 
-        assertTrue(buffer.getScreenLine(0).isBlank());
+        assertTrue(buffer.getLine(0).isBlank());
     }
 
     // --- Empty Line ---
@@ -623,7 +622,7 @@ public class TextBufferTest {
 
         buffer.emptyLine();
 
-        assertTrue(buffer.getScreenLine(0).isBlank());
+        assertTrue(buffer.getLine(0).isBlank());
     }
 
     // --- Insert empty line
@@ -637,11 +636,11 @@ public class TextBufferTest {
 
         buffer.insertEmptyLine();
 
-        assertEquals("BBBBB", buffer.getScreenLine(0));
-        assertEquals("CCCCC", buffer.getScreenLine(1));
-        assertTrue(buffer.getScreenLine(2).isBlank());
+        assertEquals("BBBBB", buffer.getLine(1));
+        assertEquals("CCCCC", buffer.getLine(2));
+        assertTrue(buffer.getLine(3).isBlank());
 
-        assertEquals("AAAAA", buffer.getScrollbackLine(-1));
+        assertEquals("AAAAA", buffer.getLine(0));
     }
 
     @Test
@@ -650,8 +649,8 @@ public class TextBufferTest {
 
         buffer.insertEmptyLine();
 
-        assertTrue(buffer.getScreenLine(2).isBlank());
-        assertTrue(buffer.getScrollbackLine(0).isBlank());
+        assertTrue(buffer.getLine(2).isBlank());
+        assertTrue(buffer.getLine(0).isBlank());
     }
 
     @Test
@@ -664,7 +663,7 @@ public class TextBufferTest {
         buffer.insertEmptyLine();
         buffer.insertEmptyLine();
 
-        assertEquals("BBBBB", buffer.getScrollbackLine(-1));
+        assertEquals("BBBBB", buffer.getLine(0));
     }
 
     @Test
@@ -688,9 +687,9 @@ public class TextBufferTest {
 
         buffer.clearScreen();
 
-        assertEquals("     ", buffer.getScreenLine(0));
-        assertEquals("     ", buffer.getScreenLine(1));
-        assertEquals("     ", buffer.getScreenLine(2));
+        assertEquals("     ", buffer.getLine(0));
+        assertEquals("     ", buffer.getLine(1));
+        assertEquals("     ", buffer.getLine(2));
     }
 
     @Test
@@ -703,7 +702,7 @@ public class TextBufferTest {
 
         buffer.clearScreen();
 
-        assertEquals("ABCDE", buffer.getScrollbackLine(-1));
+        assertEquals("ABCDE", buffer.getLine(0));
     }
 
     @Test
@@ -727,9 +726,9 @@ public class TextBufferTest {
 
         buffer.clearScreenAndScrollback();
 
-        assertTrue(buffer.getScreenLine(0).isBlank());
-        assertTrue(buffer.getScreenLine(1).isBlank());
-        assertTrue(buffer.getScreenLine(2).isBlank());
+        assertTrue(buffer.getLine(0).isBlank());
+        assertTrue(buffer.getLine(1).isBlank());
+        assertTrue(buffer.getLine(2).isBlank());
     }
 
     @Test
@@ -740,11 +739,11 @@ public class TextBufferTest {
         buffer.writeText("FGHIJ");
         buffer.writeText("KLMNO");
 
-        assertEquals("ABCDE", buffer.getScrollbackLine(-1));
+        assertEquals("ABCDE", buffer.getLine(0));
 
         buffer.clearScreenAndScrollback();
 
-        assertThrows(IllegalArgumentException.class, () -> buffer.getScrollbackLine(-1));
+        assertTrue(buffer.getLine(0).isBlank());
     }
 
     @Test
