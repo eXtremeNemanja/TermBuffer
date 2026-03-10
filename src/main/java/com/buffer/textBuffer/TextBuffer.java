@@ -16,6 +16,16 @@ public class TextBuffer {
     private CellAttributes currentAttributes;
 
     public TextBuffer(int width, int height, int maxScrollback) {
+
+        if (width <= 0)
+            throw new IllegalArgumentException("Width must be > 0");
+
+        if (height <= 0)
+            throw new IllegalArgumentException("Height must be > 0");
+
+        if (maxScrollback < 0)
+            throw new IllegalArgumentException("Scrollback must be >= 0");
+
         this.width = width;
         this.height = height;
         this.maxScrollback = maxScrollback;
@@ -31,10 +41,37 @@ public class TextBuffer {
         }
     }
 
+    public String getScreenLine(int lineNumber) {
+        if (lineNumber >= height)
+            throw new IllegalArgumentException("Line number cannot be more than screen height");
+
+        return getText(screen.get(lineNumber));
+    }
+
+    public String getScrollbackLine(int lineNumber) {
+        if (lineNumber < 0) {
+            lineNumber += scrollback.size();
+        }
+
+        if (lineNumber >= maxScrollback || lineNumber >= scrollback.size())
+            return "";
+
+        return getText(scrollback.get(lineNumber));
+    }
+
     private List<Cell> createEmptyLine() {
         List<Cell> line = new ArrayList<>();
         for (int i = 0; i < width; i++)
             line.add(new Cell(' ', new CellAttributes()));
         return line;
+    }
+
+    private String getText(List<Cell> cells) {
+        StringBuilder text = new StringBuilder();
+        for (Cell c : cells) {
+            text.append(c.getCharacter());
+        }
+
+        return text.toString();
     }
 }
