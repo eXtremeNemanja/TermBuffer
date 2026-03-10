@@ -17,7 +17,7 @@ public class TextBufferTest {
             assertNotNull(buffer.getLine(i));
         }
 
-        assertThrows(IllegalArgumentException.class, () -> buffer.getLine(5));
+        assertThrows(IndexOutOfBoundsException.class, () -> buffer.getLine(5));
     }
 
     @Test
@@ -756,5 +756,43 @@ public class TextBufferTest {
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(0, cursorPosition.getRow());
         assertEquals(0, cursorPosition.getColumn());
+    }
+
+    // --- Retrieve character at position ---
+
+    @Test
+    void getCharacterShouldReadFromScreen() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        buffer.writeText("ABCDE");
+
+        assertEquals('A', buffer.getCharacterAt(new Position(0, 0)));
+        assertEquals('E', buffer.getCharacterAt(new Position(0, 4)));
+    }
+
+    @Test
+    void getCharacterShouldReadFromScrollback() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.writeText("FGHIJ");
+        buffer.writeText("KLMNO");
+
+        assertEquals('A', buffer.getCharacterAt(new Position(0, 0))); // scrollback line
+    }
+
+    @Test
+    void getCharacterShouldReturnSpaceForEmptyCell() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        assertEquals(' ', buffer.getCharacterAt(new Position(0, 0)));
+    }
+
+    @Test
+    void getCharacter_invalidPositionThrows() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        assertThrows(IndexOutOfBoundsException.class,
+                () -> buffer.getCharacterAt(new Position(-1, 0)));
     }
 }
