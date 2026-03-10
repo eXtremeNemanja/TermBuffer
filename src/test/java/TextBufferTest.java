@@ -626,4 +626,56 @@ public class TextBufferTest {
         assertTrue(buffer.getScreenLine(0).isBlank());
     }
 
+    // --- Insert empty line
+
+    @Test
+    void insertEmptyLineShouldMoveTopLineToScrollback() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.writeText("AAAAA");
+        buffer.writeText("BBBBB");
+        buffer.writeText("CCCCC");
+
+        buffer.insertEmptyLine();
+
+        assertEquals("BBBBB", buffer.getScreenLine(0));
+        assertEquals("CCCCC", buffer.getScreenLine(1));
+        assertTrue(buffer.getScreenLine(2).isBlank());
+
+        assertEquals("AAAAA", buffer.getScrollbackLine(-1));
+    }
+
+    @Test
+    void insertEmptyLineShouldScrollEvenIfTopLineIsEmpty() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        buffer.insertEmptyLine();
+
+        assertTrue(buffer.getScreenLine(2).isBlank());
+        assertTrue(buffer.getScrollbackLine(0).isBlank());
+    }
+
+    @Test
+    void insertEmptyLineShouldRespectScrollbackLimit() {
+        TextBuffer buffer = new TextBuffer(5, 2, 1);
+
+        buffer.writeText("AAAAA");
+        buffer.writeText("BBBBB");
+
+        buffer.insertEmptyLine();
+        buffer.insertEmptyLine();
+
+        assertEquals("BBBBB", buffer.getScrollbackLine(-1));
+    }
+
+    @Test
+    void insertEmptyLineShouldNotChangeCursorPosition() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.setCursorPosition(new Position(1, 2));
+
+        buffer.insertEmptyLine();
+
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(1, cursorPosition.getRow());
+        assertEquals(2, cursorPosition.getColumn());
+    }
 }
