@@ -1,3 +1,4 @@
+import com.buffer.textBuffer.CellAttributes;
 import com.buffer.textBuffer.Position;
 import com.buffer.textBuffer.TextBuffer;
 import org.junit.jupiter.api.Test;
@@ -794,5 +795,37 @@ public class TextBufferTest {
 
         assertThrows(IndexOutOfBoundsException.class,
                 () -> buffer.getCharacterAt(new Position(-1, 0)));
+    }
+
+    // --- Retrieve cell attributes at position ---
+
+    @Test
+    void getAttributes_returnsDefaultAttributes() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        CellAttributes attr = buffer.getAttributesAt(new Position(0, 0));
+
+        assertNotNull(attr);
+    }
+
+    @Test
+    void getAttributes_readsFromScrollback() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.writeText("FGHIJ");
+        buffer.writeText("KLMNO");
+
+        CellAttributes attr = buffer.getAttributesAt(new Position(0, 0));
+
+        assertNotNull(attr);
+    }
+
+    @Test
+    void getAttributes_invalidPositionThrows() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        assertThrows(IndexOutOfBoundsException.class,
+                () -> buffer.getAttributesAt(new Position(10, 1)));
     }
 }
