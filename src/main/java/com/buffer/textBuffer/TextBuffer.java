@@ -157,6 +157,30 @@ public class TextBuffer {
             return getScreenCharacterAttributes(new Position(position.getRow() - scrollback.size(), position.getColumn()));
     }
 
+    public String getScreenContent() {
+        StringBuilder content = new StringBuilder();
+        for (int i = 0; i < height; i++) {
+            content.append(getScreenLine(i));
+            content.append("\n");
+        }
+
+        content.deleteCharAt(content.length() - 1);
+
+        return content.toString();
+    }
+
+    public String getEntireContent() {
+        StringBuilder content = new StringBuilder();
+        for (int i = 0; i < scrollback.size(); i++) {
+            content.append(getScrollbackLine(i));
+            content.append("\n");
+        }
+
+        content.append(getScreenContent());
+
+        return content.toString();
+    }
+
     public Position getCursorPosition() {
         return new Position(cursor.getRow(), cursor.getColumn());
     }
