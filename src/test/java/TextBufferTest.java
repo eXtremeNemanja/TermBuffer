@@ -320,7 +320,7 @@ public class TextBufferTest {
         assertEquals(9, cursorPosition.getColumn());
     }
 
-    // --- WRITE TEXT ---
+    // --- Write text ---
 
     @Test
     void writeTextShouldFitInOneLine() {
@@ -340,6 +340,18 @@ public class TextBufferTest {
 
         assertEquals(0, buffer.getCursorPosition().getRow());
         assertEquals(3, buffer.getCursorPosition().getColumn());
+    }
+
+    @Test
+    void writeTextShouldOverride() {
+        TextBuffer buffer = new TextBuffer(3, 2, 5);
+
+        buffer.writeText("ABC");
+
+        buffer.setCursorPosition(new Position(0,0));
+        buffer.writeText("DEF");
+
+        assertEquals("DEF", buffer.getScreenLine(0));
     }
 
     @Test
@@ -410,5 +422,140 @@ public class TextBufferTest {
         Position cursorPosition = buffer.getCursorPosition();
         assertTrue(cursorPosition.getRow() <= 1);
         assertTrue(cursorPosition.getColumn() <= 3);
+    }
+
+    // --- Insert text ---
+
+    @Test
+    void insertTextAtStartOfEmptyLine() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.insertText("AB");
+
+        assertTrue(buffer.getScreenLine(0).startsWith("AB"));
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(2, cursorPosition.getColumn());
+        assertEquals(0, cursorPosition.getRow());
+    }
+
+    @Test
+    void insertTextInMiddleOfLine() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+
+        buffer.setCursorPosition(new Position(0, 2));
+        buffer.insertText("XY");
+
+        assertEquals("ABXYC", buffer.getScreenLine(0));
+        assertTrue(buffer.getScreenLine(1).startsWith("DE"));
+
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(2, cursorPosition.getColumn());
+        assertEquals(1, cursorPosition.getRow());
+    }
+
+    @Test
+    void insertTextAtLineEnd() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABC");
+        buffer.setCursorPosition(new Position(0, 3));
+        buffer.insertText("DE");
+
+        assertEquals("ABCDE", buffer.getScreenLine(0));
+
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(5, cursorPosition.getColumn());
+        assertEquals(0, cursorPosition.getRow());
+    }
+
+    @Test
+    void insertTextThatExceedsLineWidthShouldWrap() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.setCursorPosition(new Position(0, 1));
+        buffer.insertText("XYZ");
+
+        assertEquals("AXYZB", buffer.getScreenLine(0));
+        assertTrue(buffer.getScreenLine(1).startsWith("CDE"));
+
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(3, cursorPosition.getColumn());
+        assertEquals(1, cursorPosition.getRow());
+    }
+
+    @Test
+    void insertTextAtStartOfFullLineShouldWrapExistingText() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.setCursorPosition(new Position(0, 0));
+        buffer.insertText("XY");
+
+        assertEquals("XYABC", buffer.getScreenLine(0));
+        assertTrue(buffer.getScreenLine(1).startsWith("DE"));
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(2, cursorPosition.getColumn());
+    }
+
+    @Test
+    void insertTextAtEndOfFullLineShouldWrapExistingText() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.setCursorPosition(new Position(0, 5));
+        buffer.insertText("XY");
+
+        assertEquals("ABCDX", buffer.getScreenLine(0));
+        assertTrue(buffer.getScreenLine(1).startsWith("YE"));
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(2, cursorPosition.getColumn());
+        assertEquals(1, cursorPosition.getRow());
+    }
+
+    @Test
+    void insertTextMultipleWraps() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.setCursorPosition(new Position(0, 5));
+        buffer.insertText("UVWXYZ");
+
+        assertEquals("ABCDU", buffer.getScreenLine(0));
+        assertEquals("VWXYZ", buffer.getScreenLine(1));
+        assertTrue(buffer.getScreenLine(2).startsWith("E"));
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(1, cursorPosition.getColumn());
+        assertEquals(2, cursorPosition.getRow());
+    }
+
+    @Test
+    void insertTextMultipleTimes() {
+        TextBuffer buffer = new TextBuffer(6, 2, 10);
+
+        buffer.writeText("ABC");
+        buffer.setCursorPosition(new Position(0, 1));
+        buffer.insertText("XY");
+        buffer.setCursorPosition(new Position(0, 2));
+        buffer.insertText("Z");
+
+        assertEquals("AXZYBC", buffer.getScreenLine(0));
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(3, cursorPosition.getColumn());
+    }
+
+    @Test
+    void insertTextEmptyStringDoesNothing() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABC");
+        buffer.setCursorPosition(new Position(0, 1));
+        buffer.insertText("");
+
+        assertTrue(buffer.getScreenLine(0).startsWith("ABC"));
+        Position cursorPosition = buffer.getCursorPosition();
+        assertEquals(1, cursorPosition.getColumn());
     }
 }
