@@ -828,4 +828,58 @@ public class TextBufferTest {
         assertThrows(IndexOutOfBoundsException.class,
                 () -> buffer.getAttributesAt(new Position(10, 1)));
     }
+
+    // --- Get screen content ---
+
+    @Test
+    void getScreenContentShouldReturnAllScreenLines() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.writeText("FGHIJ");
+
+        String content = buffer.getScreenContent();
+
+        assertEquals("ABCDE\nFGHIJ", content);
+    }
+
+    @Test
+    void getScreenContentShouldReturnEmptyBuffer() {
+        TextBuffer buffer = new TextBuffer(3, 2, 10);
+
+        assertEquals(
+                "   \n   ",
+                buffer.getScreenContent()
+        );
+    }
+
+    // --- Get entire content ---
+
+    @Test
+    void getEntireContentShouldReturnScrollbackAndScreen() {
+        TextBuffer buffer = new TextBuffer(5, 2, 10);
+
+        buffer.writeText("ABCDE");
+        buffer.writeText("FGHIJ");
+        buffer.writeText("KLMNO");
+
+
+        assertEquals("ABCDE\nFGHIJ\nKLMNO", buffer.getEntireContent());
+    }
+
+    @Test
+    void getEntireContentWhenNoScrollback() {
+        TextBuffer buffer = new TextBuffer(3, 2, 10);
+
+        buffer.writeText("ABC");
+
+        assertEquals("ABC\n   ", buffer.getEntireContent());
+    }
+
+    @Test
+    void getEntireContentEmptyBuffer() {
+        TextBuffer buffer = new TextBuffer(3, 2, 10);
+
+        assertEquals("   \n   ", buffer.getEntireContent());
+    }
 }
