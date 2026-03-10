@@ -98,6 +98,15 @@ public class TextBuffer {
         }
     }
 
+    public void fillLine(char c) {
+        List<Cell> line = screen.get(cursor.getRow());
+        line.replaceAll(ignored -> new Cell(c, currentAttributes));
+    }
+
+    public void emptyLine() {
+        fillLine(' ');
+    }
+
     public String getScreenLine(int lineNumber) {
         if (lineNumber >= height)
             throw new IllegalArgumentException("Line number must be less than screen height");
