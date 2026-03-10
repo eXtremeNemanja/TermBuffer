@@ -558,4 +558,72 @@ public class TextBufferTest {
         Position cursorPosition = buffer.getCursorPosition();
         assertEquals(1, cursorPosition.getColumn());
     }
+
+    // --- Fill line ---
+
+    @Test
+    void fillLineShouldFillEntireLineWithCharacter() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        buffer.fillLine('X');
+
+        assertEquals("XXXXX", buffer.getScreenLine(0));
+    }
+
+    @Test
+    void fillLineShouldNotMoveCursor() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.setCursorPosition(new Position(1, 3));
+
+        buffer.fillLine('X');
+
+        Position cursor = buffer.getCursorPosition();
+        assertEquals(1, cursor.getRow());
+        assertEquals(3, cursor.getColumn());
+    }
+
+    @Test
+    void fillLineShouldOverrideExistingContent() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.writeText("AAAAA");
+
+        buffer.fillLine('B');
+
+        assertEquals("BBBBB", buffer.getScreenLine(0));
+    }
+
+    @Test
+    void fillLineDoesNotAffectOtherLines() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.fillLine('A');
+
+        buffer.setCursorPosition(new Position(1,0));
+        buffer.fillLine('B');
+
+        assertEquals("AAAAA", buffer.getScreenLine(0));
+        assertEquals("BBBBB", buffer.getScreenLine(1));
+    }
+
+    @Test
+    void fillLineFillWithSpaceCharacterShouldEmptyLine() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.writeText("AAAAA");
+
+        buffer.fillLine(' ');
+
+        assertTrue(buffer.getScreenLine(0).isBlank());
+    }
+
+    // --- Empty Line ---
+
+    @Test
+    void emptyLineShouldOverride() {
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+        buffer.writeText("AAAAA");
+
+        buffer.emptyLine();
+
+        assertTrue(buffer.getScreenLine(0).isBlank());
+    }
+
 }
