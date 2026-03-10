@@ -41,6 +41,21 @@ public class TextBuffer {
         }
     }
 
+    public void writeText(String text) {
+        for (char c : text.toCharArray()) {
+
+            if (cursor.getColumn() > width - 1) {
+                cursor.setPosition(cursor.getRow(), 0);
+                moveCursorDown();
+            }
+
+            List<Cell> line = screen.get(cursor.getRow());
+            line.set(cursor.getColumn(), new Cell(c, currentAttributes));
+
+            cursor.setPosition(cursor.getRow(), cursor.getColumn() + 1);
+        }
+    }
+
     public String getScreenLine(int lineNumber) {
         if (lineNumber >= height)
             throw new IllegalArgumentException("Line number must be less than screen height");
@@ -103,5 +118,26 @@ public class TextBuffer {
         }
 
         return text.toString();
+    }
+
+
+    private void moveCursorDown() {
+
+        if (cursor.getRow() == height - 1) {
+            scroll();
+        } else {
+            cursor.setPosition(cursor.getRow() + 1, cursor.getColumn());
+        }
+    }
+
+    private void scroll() {
+        List<Cell> removedLine = screen.removeFirst();
+        scrollback.addLast(removedLine);
+
+        if (scrollback.size() > maxScrollback) {
+            scrollback.removeFirst();
+        }
+
+        screen.add(createEmptyLine());
     }
 }
