@@ -129,12 +129,22 @@ public class TextBuffer {
 
     public String getLine(int lineNumber) {
         if (lineNumber >= scrollback.size() + height)
-            throw new IllegalArgumentException("There isn't that many lines");
+            throw new IndexOutOfBoundsException("There isn't that many lines");
 
         if (lineNumber < scrollback.size())
             return getScrollbackLine(lineNumber);
         else
             return getScreenLine(lineNumber - scrollback.size());
+    }
+
+    public char getCharacterAt(Position position) {
+        if (position.getRow() >= scrollback.size() + height)
+            throw new IndexOutOfBoundsException("There isn't that many rows or columns");
+
+        if (position.getRow() < scrollback.size())
+            return getScrollbackCharacter(position);
+        else
+            return getScreenCharacter(new Position(position.getRow() - scrollback.size(), position.getColumn()));
     }
 
     public Position getCursorPosition() {
@@ -202,6 +212,19 @@ public class TextBuffer {
             throw new IllegalArgumentException("Scrollback is currently not that big");
 
         return getText(scrollback.get(lineNumber));
+    }
+
+    private char getScreenCharacter(Position position) {
+        if (position.getRow() >= height || position.getColumn() >= width)
+            throw new IllegalArgumentException("Coordinates are not valid");
+        return screen.get(position.getRow()).get(position.getColumn()).getCharacter();
+    }
+
+    private char getScrollbackCharacter(Position position) {
+        if (position.getRow() >= maxScrollback || position.getRow() >= scrollback.size() || position.getColumn() >= width)
+            throw new IllegalArgumentException("Coordinates are not valid");
+
+        return scrollback.get(position.getRow()).get(position.getColumn()).getCharacter();
     }
 
     private void moveCursorDown() {
