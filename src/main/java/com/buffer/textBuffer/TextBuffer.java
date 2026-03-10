@@ -111,6 +111,22 @@ public class TextBuffer {
         scroll();
     }
 
+    public void clearScreen() {
+        screen.clear();
+
+        for (int i = 0; i < height; i++) {
+            screen.add(createEmptyLine());
+        }
+
+        cursor.setPosition(0, 0);
+    }
+
+    public void clearScreenAndScrollback() {
+        scrollback.clear();
+
+        clearScreen();
+    }
+
     public String getScreenLine(int lineNumber) {
         if (lineNumber >= height)
             throw new IllegalArgumentException("Line number must be less than screen height");
@@ -119,6 +135,9 @@ public class TextBuffer {
     }
 
     public String getScrollbackLine(int lineNumber) {
+        if (scrollback.isEmpty())
+            throw new IllegalArgumentException("Scrollback is currently empty");
+
         if (lineNumber < 0) {
             lineNumber += scrollback.size();
         }
