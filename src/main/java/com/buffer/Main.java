@@ -1,17 +1,41 @@
 package com.buffer;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    static void main() {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Hello and welcome!"));
+import com.buffer.textBuffer.Position;
+import com.buffer.textBuffer.TextBuffer;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            IO.println("i = " + i);
-        }
+public class Main {
+
+    static void main() {
+        demonstrate();
+    }
+
+    private static void demonstrate() {
+        // Create a text buffer - width: 10, height: 5, max scrollback: 10
+        TextBuffer buffer = new TextBuffer(5, 3, 10);
+
+        // Write some text
+        buffer.writeText("Hello, World!");
+
+        // Show the screen content
+        System.out.println("=== Screen ===");
+        System.out.println(buffer.getScreenContent());
+
+        // Insert empty line (simulates scrolling)
+        buffer.insertEmptyLine();
+
+        // Show new screen state
+        System.out.println("=== Screen after inserting empty line ===");
+        System.out.println(buffer.getScreenContent());
+
+        // Move cursor and insert text
+        buffer.setCursorPosition(new Position(2, 1));
+        buffer.writeText("ABC");
+
+        System.out.println("=== Screen after writing 'ABC' at (2,1) ===");
+        System.out.println(buffer.getScreenContent());
+
+        // Show full buffer content (screen + scrollback)
+        System.out.println("=== Full buffer (including scrollback) ===");
+        System.out.println(buffer.getEntireContent());
     }
 }
